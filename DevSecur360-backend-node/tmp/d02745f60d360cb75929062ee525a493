@@ -1,0 +1,140 @@
+// src/pages/CodeUploadScan.js
+import React, { useState } from "react";
+import axios from "axios";
+
+export default function CodeUploadScan() {
+  const [file, setFile] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState(null);
+  const [errorText, setErrorText] = useState("");
+
+  const onFileChange = (e) => {
+    setErrorText("");
+    setResult(null);
+    setProgress(0);
+    const f = e.target.files && e.target.files[0];
+    if (f) setFile(f);
+  };
+
+  const uploadAndScan = async () => {
+    setErrorText("");
+    setResult(null);
+    setProgress(0);
+
+    if (!file) {
+      setErrorText("Please select a file (.py, .js, .txt).");
+      return;
+    }
+
+    // Basic client-side validation
+    const allowed = [".py", ".js", ".txt"];
+    const ext = file.name.slice(((file.name.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+    if (!allowed.includes("." + ext)) {
+      setErrorText("Invalid file type. Allowed: .py, .js, .txt");
+      return;
+    }
+
+    const form = new FormData();
+    form.append("codefile", file);
+
+    try {
+      setScanning(true);
+      setProgress(2);
+
+      const res = await axios.post("http://localhost:8000/scan-file", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 120000,
+        onUploadProgress: (ev) => {
+          if (ev.total) {
+            const p = Math.round((ev.loaded * 100) / ev.total);
+            setProgress(p);
+          }
+        },
+      });
+
+      setResult(res.data);
+    } catch (err) {
+      console.error("upload error:", err);
+      const serverErr = err?.response?.data?.error || err?.message || "Upload failed";
+      setErrorText(String(serverErr));
+    } finally {
+      setScanning(false);
+      setProgress(100);
+    }
+  };
+
+  const reset = () => {
+    setFile(null);
+    setResult(null);
+    setErrorText("");
+    setProgress(0);
+  };
+
+  return (
+    <div className="page-container" style={{ padding: 20 }}>
+      <h2>Upload Code File & Scan</h2>
+
+      <div style={{ marginBottom: 12 }}>
+        <input
+          type="file"
+          onChange={onFileChange}
+          accept=".py,.js,.txt,text/plain"
+        />
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <button
+          onClick={uploadAndScan}
+          disabled={scanning}
+          style={{ marginRight: 8 }}
+        >
+          {scanning ? "Scanning..." : "Upload & Scan"}
+        </button>
+
+        <button onClick={reset} disabled={scanning}>
+          Reset
+        </button>
+      </div>
+
+      {progress > 0 && (
+        <div style={{ width: "100%", maxWidth: 600, marginBottom: 12 }}>
+          <div style={{ height: 8, background: "#0b2730", borderRadius: 8, overflow: "hidden" }}>
+            <div style={{ width: `${progress}%`, height: "100%", background: "#2b6ea3", transition: "width .2s" }} />
+          </div>
+          <div style={{ fontSize: 13, color: "#cfe9ff", marginTop: 6 }}>{progress}%</div>
+        </div>
+      )}
+
+      {errorText && (
+        <div style={{ color: "white", background: "#c62828", padding: 10, borderRadius: 6, marginBottom: 12 }}>
+          <strong>Error:</strong> {errorText}
+        </div>
+      )}
+
+      {result && (
+        <div style={{ marginTop: 12 }}>
+          <h3>Scan Result</h3>
+          <div style={{ marginBottom: 8 }}><strong>Scan ID:</strong> {result.scanId}</div>
+          <div style={{ marginBottom: 8 }}><strong>Score:</strong> {result.score}</div>
+
+          {result.issues && result.issues.length > 0 ? (
+            result.issues.map((i, idx) => (
+              <div key={idx} style={{ padding: 12, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, marginBottom: 10, background: "#071827" }}>
+                <div style={{ fontSize: 16, color: "#fff", marginBottom: 6 }}>{i.vulnerability}</div>
+                <div style={{ fontSize: 13, color: "#9fb7c0" }}><strong>Severity:</strong> {i.severity} &nbsp; | &nbsp; <strong>Location:</strong> {i.location}</div>
+                {i.description && <div style={{ marginTop: 8, color: "#dbeefc" }}>{i.description}</div>}
+              </div>
+            ))
+          ) : (
+            <div>No issues found.</div>
+          )}
+        </div>
+      )}
+
+      <div style={{ marginTop: 20, color: "#9fb7c0", fontSize: 13 }}>
+        Tip: Use small sample files while developing. Backend is in <strong>dummy</strong> mode if USE_DUMMY=true.
+      </div>
+    </div>
+  );
+}

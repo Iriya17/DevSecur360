@@ -1,0 +1,125 @@
+.scan-container {
+  width: 100%;
+  min-height: 100vh;
+  background: #041a2f;
+  display: flex;
+  justify-content: center;
+  padding-top: 60px;
+}
+
+.scan-card {
+  background: #082c44;
+  width: 60%;
+  padding: 40px;
+  border-radius: 18px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+}
+
+.scan-title {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.file-box {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.file-input {
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+}
+
+.scan-btn {
+  width: 120px;
+  padding: 10px;
+  background: #4fa3ff;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  display: block;
+  margin: 10px auto;
+  cursor: pointer;
+}
+
+.scan-btn:disabled {
+  background: #738ea0;
+}
+
+.loading-text {
+  text-align: center;
+  color: #a8d1ff;
+  margin-top: 10px;
+}
+
+.result-section {
+  margin-top: 30px;
+  color: white;
+}
+
+.summary-title {
+  margin: 15px 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.summary-table {
+  width: 100%;
+  background: #0b3d5c;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.summary-table th, .summary-table td {
+  padding: 12px;
+}
+
+.summary-table th {
+  background: #0f4d75;
+}
+
+.medium {
+  color: #ffcc00;
+}
+
+.low {
+  color: #8be17c;
+}
+
+.high {
+  color: #ff6b6b;
+}
+
+.score-badge {
+  float: right;
+  background: #ff4d4d;
+  padding: 8px 14px;
+  border-radius: 15px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.stats-box {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #0b3d5c;
+  border-radius: 10px;
+}
+
+.agent-btn {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background: #4fa3ff;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: block;
+}
